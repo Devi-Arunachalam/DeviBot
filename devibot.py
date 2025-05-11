@@ -1,13 +1,13 @@
 import streamlit as st
 
-# === Sidebar: API Key Input ===
-st.sidebar.header("API Configuration")
-api_key = st.sidebar.text_input("Enter your API key", type="password")
-
-# === Streamlit Page Config ===
+# === Streamlit Page Config (Must be first) ===
 st.set_page_config(page_title="DeviBot - Chatbot")
 st.title("DeviBot")
 st.markdown("Welcome to DeviBot, your AI assistant.")
+
+# === Sidebar: API Key Input ===
+st.sidebar.header("API Configuration")
+api_key = st.sidebar.text_input("Enter your API key", type="password")
 
 # === API Key Validation ===
 if not api_key:
