@@ -1,55 +1,39 @@
 import streamlit as st
-import google.generativeai as genai
 
-# === Sidebar for API Key ===
+# === Sidebar: API Key Input ===
 st.sidebar.header("API Configuration")
-api_key = st.sidebar.text_input("Enter your Gemini API key", type="password")
+api_key = st.sidebar.text_input("Enter your API key", type="password")
 
-# === Gemini Configuration Function ===
-def configure_gemini_chat(api_key):
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-pro")
-    return model.start_chat(history=[])
+# === Streamlit Page Config ===
+st.set_page_config(page_title="DeviBot - Chatbot")
+st.title("DeviBot")
+st.markdown("Welcome to DeviBot, your AI assistant.")
 
-# === Page Setup ===
-st.set_page_config(page_title="DeviBot - Gemini Chat", page_icon="🤖")
-st.title("🤖 DeviBot")
-st.markdown("Chat with **DeviBot**, your AI assistant powered by Gemini with memory.")
-
-# === Validate API Key ===
+# === API Key Validation ===
 if not api_key:
-    st.warning("Please enter your Gemini API key in the sidebar to start chatting.")
+    st.warning("Please enter your API key in the sidebar to start chatting.")
     st.stop()
 
-# === Initialize Chat ===
-if "chat" not in st.session_state:
-    try:
-        st.session_state.chat = configure_gemini_chat(api_key)
-        st.session_state.messages = []
-    except Exception as e:
-        st.error(f"Failed to configure Gemini: {e}")
-        st.stop()
+# === Initialize Chat History ===
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# === Show Chat History ===
+# === Display Chat History ===
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# === Handle User Input ===
+# === Handle New Input ===
 user_input = st.chat_input("Say something to DeviBot...")
 
 if user_input:
-    # Display user message
+    # Show user input
     st.chat_message("user").markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # Get DeviBot's response
-    try:
-        response = st.session_state.chat.send_message(user_input)
-        reply = response.text.strip()
-    except Exception as e:
-        reply = f"❌ Error from Gemini: {e}"
+    # Generate a simple bot response (you can replace this with any AI logic)
+    bot_reply = f"DeviBot says: You said: {user_input}"
 
-    # Display assistant response
-    st.chat_message("assistant").markdown(reply)
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+    # Show bot response
+    st.chat_message("assistant").markdown(bot_reply)
+    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
