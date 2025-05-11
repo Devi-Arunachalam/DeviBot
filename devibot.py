@@ -11,7 +11,9 @@ if "api_key" not in st.session_state:
 
 if st.session_state.api_key is None:
     st.sidebar.header("API Configuration")
-    st.sidebar.text_input("Enter your API key", type="password", key="api_key")
+    api_key = st.sidebar.text_input("Enter your API key", type="password", key="api_key")
+    if api_key:
+        st.session_state.api_key = api_key
 else:
     st.sidebar.empty()  # This removes the sidebar once the API key is entered
 
@@ -43,3 +45,4 @@ if user_input:
     # Show bot response
     st.chat_message("assistant").markdown(bot_reply)
     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+
