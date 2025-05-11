@@ -5,12 +5,18 @@ st.set_page_config(page_title="DeviBot - Chatbot")
 st.title("DeviBot")
 st.markdown("Welcome to DeviBot, your AI assistant.")
 
-# === Sidebar: API Key Input ===
-st.sidebar.header("API Configuration")
-api_key = st.sidebar.text_input("Enter your API key", type="password")
+# === Sidebar: API Key Input (Only shown if API key isn't entered) ===
+if "api_key" not in st.session_state:
+    st.session_state.api_key = None
+
+if st.session_state.api_key is None:
+    st.sidebar.header("API Configuration")
+    st.sidebar.text_input("Enter your API key", type="password", key="api_key")
+else:
+    st.sidebar.empty()  # This removes the sidebar once the API key is entered
 
 # === API Key Validation ===
-if not api_key:
+if st.session_state.api_key is None:
     st.warning("Please enter your API key in the sidebar to start chatting.")
     st.stop()
 
