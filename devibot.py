@@ -4,7 +4,7 @@ import google.generativeai as genai
 # === Streamlit Page Config ===
 st.set_page_config(page_title="DeviBot - Chatbot")
 st.title("DeviBot")
-st.markdown("Welcome to DeviBot, your AI assistant powered by Gemini!")
+st.markdown("Welcome to DeviBot, your AI assistant!")
 
 # === Sidebar: API Key Input ===
 st.sidebar.header("API Configuration")
