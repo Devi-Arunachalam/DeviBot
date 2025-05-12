@@ -27,19 +27,24 @@ if "messages" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = {}
 
-# === Show Chat History Tab ===
+# === Show Chat History Tab with Resume Option ===
 if view_history:
     st.subheader("Past Conversations")
+
     user_history = st.session_state.history.get(api_key, [])
     if not user_history:
         st.info("No past conversations found for this API key.")
-    else:
-        for idx, convo in enumerate(user_history[::-1], 1):
-            with st.expander(f"Conversation #{len(user_history) - idx + 1}"):
-                for msg in convo:
-                    role = "User" if msg["role"] == "user" else "DeviBot"
-                    st.markdown(f"**{role}**: {msg['content']}")
-    st.stop()
+        st.stop()
+
+    options = [f"Conversation #{i+1}" for i in range(len(user_history))]
+    selection = st.selectbox("Select a conversation to resume", options)
+
+    index = options.index(selection)
+    convo = user_history[index]
+
+    if st.button("Load Conversation"):
+        st.session_state.messages = convo.copy()
+        st.success("Conversation loaded. You can continue chatting below.")
 
 # === Display Current Chat ===
 for msg in st.session_state.messages:
