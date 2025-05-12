@@ -72,10 +72,10 @@ if view_history:
         st.info("No past conversations found for this API key.")
         st.stop()
 
-    options = [f"Conversation #{i+1}" for i in range(len(user_history))]
-    selection = st.selectbox("Select a conversation to resume", options)
-    index = options.index(selection)
-    convo = user_history[index]
+    titles = [entry["title"] for entry in user_history]
+    selection = st.selectbox("Select a conversation to resume", titles)
+    index = titles.index(selection)
+    convo = user_history[index]["messages"]
 
     if st.button("Load Conversation"):
         st.session_state.messages = convo.copy()
@@ -128,7 +128,20 @@ def save_conversation():
     if st.session_state.messages:
         if api_key not in st.session_state.history:
             st.session_state.history[api_key] = []
-        st.session_state.history[api_key].append(st.session_state.messages.copy())
+
+        # Use first user message or fallback title
+        title = "Untitled Conversation"
+        for msg in st.session_state.messages:
+            if msg["role"] == "user":
+                title = msg["content"][:40].strip() + "..." if len(msg["content"]) > 40 else msg["content"]
+                break
+
+        # Save conversation with title
+        st.session_state.history[api_key].append({
+            "title": title,
+            "messages": st.session_state.messages.copy()
+        })
+
         st.session_state.messages = []
 
 st.button("End Chat and Save", on_click=save_conversation)
