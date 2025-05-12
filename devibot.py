@@ -40,7 +40,7 @@ st.markdown("""
 
 # === Title ===
 st.markdown('<div class="title">DeviBot</div>', unsafe_allow_html=True)
-st.markdown("Ask anything — DeviBot powered by Gemini-2.0 Flash.")
+st.markdown("Ask anything — DeviBot: AI Virtal Assistant.")
 
 # === Sidebar ===
 st.sidebar.header("Settings")
