@@ -1,22 +1,55 @@
 import streamlit as st
 import google.generativeai as genai
 
-# === Page Setup ===
+# === Page Config ===
 st.set_page_config(page_title="DeviBot - Chatbot", layout="centered")
-st.title("DeviBot")
-st.markdown("Chat with DeviBot powered by Gemini.")
 
-# === Sidebar: API Key and Mode Selection ===
+# === Custom CSS for styling ===
+st.markdown("""
+    <style>
+    body {
+        background-color: #f7f9fc;
+    }
+    .stApp {
+        background: linear-gradient(to bottom right, #dbeafe, #fef9c3);
+        padding: 2rem;
+    }
+    .title {
+        font-size: 2.8rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #1e3a8a;
+    }
+    .chat-message.user {
+        background-color: #d1fae5;
+        padding: 0.7rem;
+        border-radius: 0.6rem;
+        margin: 0.5rem 0;
+    }
+    .chat-message.assistant {
+        background-color: #e0e7ff;
+        padding: 0.7rem;
+        border-radius: 0.6rem;
+        margin: 0.5rem 0;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# === Title ===
+st.markdown('<div class="title">🤖 DeviBot</div>', unsafe_allow_html=True)
+st.markdown("Ask anything – DeviBot powered by Gemini-2.0 Flash.")
+
+# === Sidebar ===
 st.sidebar.header("Settings")
 api_key = st.sidebar.text_input("Enter your Gemini API key", type="password", key="api_key")
 view_history = st.sidebar.checkbox("Show history")
 
-# === Require API key ===
+# === Require API Key ===
 if not api_key:
     st.warning("Please enter your Gemini API key in the sidebar.")
     st.stop()
 
-# === Configure Gemini API ===
+# === Configure Gemini ===
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
@@ -27,7 +60,7 @@ if "messages" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = {}
 
-# === Show Chat History Tab with Resume Option ===
+# === Load and resume past chat ===
 if view_history:
     st.subheader("Past Conversations")
 
@@ -38,7 +71,6 @@ if view_history:
 
     options = [f"Conversation #{i+1}" for i in range(len(user_history))]
     selection = st.selectbox("Select a conversation to resume", options)
-
     index = options.index(selection)
     convo = user_history[index]
 
@@ -46,20 +78,25 @@ if view_history:
         st.session_state.messages = convo.copy()
         st.success("Conversation loaded. You can continue chatting below.")
 
-# === Display Current Chat ===
+# === Display chat messages ===
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+    role_class = "user" if msg["role"] == "user" else "assistant"
+    st.markdown(
+        f'<div class="chat-message {role_class}"><strong>{msg["role"].capitalize()}</strong>: {msg["content"]}</div>',
+        unsafe_allow_html=True
+    )
 
 # === Chat Input ===
 user_input = st.chat_input("Say something to DeviBot...")
 
 if user_input:
-    # Show user message
-    st.chat_message("user").markdown(user_input)
+    st.markdown(
+        f'<div class="chat-message user"><strong>User</strong>: {user_input}</div>',
+        unsafe_allow_html=True
+    )
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # Build full chat history prompt
+    # Build chat context
     chat_history = ""
     for msg in st.session_state.messages:
         role = "User" if msg["role"] == "user" else "DeviBot"
@@ -70,16 +107,21 @@ if user_input:
     try:
         response = model.generate_content(chat_history)
         reply = response.text
-
-        st.chat_message("assistant").markdown(reply)
+        st.markdown(
+            f'<div class="chat-message assistant"><strong>DeviBot</strong>: {reply}</div>',
+            unsafe_allow_html=True
+        )
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
     except Exception as e:
         error_msg = f"Error: {e}"
-        st.chat_message("assistant").markdown(error_msg)
+        st.markdown(
+            f'<div class="chat-message assistant"><strong>DeviBot</strong>: {error_msg}</div>',
+            unsafe_allow_html=True
+        )
         st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
-# === Save conversation to history ===
+# === Save button ===
 def save_conversation():
     if st.session_state.messages:
         if api_key not in st.session_state.history:
