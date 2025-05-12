@@ -20,24 +20,27 @@ st.markdown("""
         margin-bottom: 1rem;
         color: #1e3a8a;
     }
-    .chat-message.user {
-        background-color: #d1fae5;
-        padding: 0.7rem;
-        border-radius: 0.6rem;
+    .chat-message {
+        padding: 0.75rem 1rem;
         margin: 0.5rem 0;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border-left: 6px solid;
+    }
+    .chat-message.user {
+        background-color: #ecfdf5;
+        border-color: #10b981;
     }
     .chat-message.assistant {
-        background-color: #e0e7ff;
-        padding: 0.7rem;
-        border-radius: 0.6rem;
-        margin: 0.5rem 0;
+        background-color: #eef2ff;
+        border-color: #6366f1;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # === Title ===
-st.markdown('<div class="title">🤖 DeviBot</div>', unsafe_allow_html=True)
-st.markdown("Ask anything – DeviBot AI Virtual Assistant")
+st.markdown('<div class="title">DeviBot</div>', unsafe_allow_html=True)
+st.markdown("Ask anything — DeviBot powered by Gemini-2.0 Flash.")
 
 # === Sidebar ===
 st.sidebar.header("Settings")
@@ -90,11 +93,11 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("Say something to DeviBot...")
 
 if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
     st.markdown(
         f'<div class="chat-message user"><strong>User</strong>: {user_input}</div>',
         unsafe_allow_html=True
     )
-    st.session_state.messages.append({"role": "user", "content": user_input})
 
     # Build chat context
     chat_history = ""
@@ -107,21 +110,20 @@ if user_input:
     try:
         response = model.generate_content(chat_history)
         reply = response.text
+        st.session_state.messages.append({"role": "assistant", "content": reply})
         st.markdown(
             f'<div class="chat-message assistant"><strong>DeviBot</strong>: {reply}</div>',
             unsafe_allow_html=True
         )
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-
     except Exception as e:
         error_msg = f"Error: {e}"
+        st.session_state.messages.append({"role": "assistant", "content": error_msg})
         st.markdown(
             f'<div class="chat-message assistant"><strong>DeviBot</strong>: {error_msg}</div>',
             unsafe_allow_html=True
         )
-        st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
-# === Save button ===
+# === Save Conversation ===
 def save_conversation():
     if st.session_state.messages:
         if api_key not in st.session_state.history:
